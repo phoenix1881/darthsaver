@@ -2,6 +2,30 @@ import os
 
 import telebot
 
+import mysql.connector
+import random
+import string
+from datetime import datetime
+from mysql.connector import Error, pooling
+
+def random_string(length):
+    return ''.join(random.choice(string.ascii_letters) for _ in range(length))
+
+
+config = {
+    "host": "aws.connect.psdb.cloud",
+    "user": "afbh24xgk2o21hmz6whi",
+    "password": "pscale_pw_xvbgAMySIpeaZyJARIaymDOkcvCrz555lCdnD631ybY",
+    "database": "darthvader_bot",
+
+}
+
+pool_name = "mypool"
+pool_size = 5
+
+cnxpool = mysql.connector.pooling.MySQLConnectionPool(pool_name=pool_name, pool_size=pool_size, **config)
+
+
 BOT_TOKEN = os.environ.get('BOT_TOKEN')
 
 bot = telebot.TeleBot(BOT_TOKEN)
@@ -44,20 +68,93 @@ def initial_set_Name(message):
 
 def initial_name_handler(message):
     name = message.text
-    bot.send_message(message.chat.id, "Your name has been set to " + name + ".")
-    set_Budget(message)
+    # create a new user in the database
+    # instantiate an new user in SQL
+    current_date = datetime.now().date()
+    username = random_string(10)
+    connection = cnxpool.get_connection()
+    if connection.is_connected():
+        cursor1 = connection.cursor()
+        cursor1.execute("SELECT * FROM expenses WHERE user_id = %s", (message.chat.id,))
+        records = cursor1.fetchall()
+        if len(records) == 0:
+
+            cursor = connection.cursor()
+            '''insert an user into this table CREATE TABLE expenses (
+        
+        user_id INT NOT NULL,
+        username VARCHAR(255) NOT NULL,
+        monthlybudget DECIMAL(10,2) NOT NULL DEFAULT 0,
+        foodanddining DECIMAL(10,2) NOT NULL DEFAULT 0,
+        transportation DECIMAL(10,2) NOT NULL DEFAULT 0,
+        entertainment DECIMAL(10,2) NOT NULL DEFAULT 0,
+        housing DECIMAL(10,2) NOT NULL DEFAULT 0,
+        wellness DECIMAL(10,2) NOT NULL DEFAULT 0,
+        personalcare DECIMAL(10,2) NOT NULL DEFAULT 0,
+        misc DECIMAL(10,2) NOT NULL DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (user_id)
+    # );'''
+    #         cursor.execute()
+    #         cursor.execute("INSERT INTO expenses () VALUES (%s)", (name,))
+            insert_query = """
+            INSERT INTO expenses (
+                user_id, date, username, monthlybudget, foodanddining, transportation, entertainment,
+                housing, wellness, personalcare, misc
+            )
+            VALUES (
+                %s, %s, %s, 0, 0, 0, 0, 0, 0, 0, 0
+            )
+            """
+
+            cursor = connection.cursor()
+            cursor.execute(insert_query, (message.chat.id, current_date, username))
+            connection.commit()
+            cursor.close()
+            #
+            # connection.commit()
+            # cursor.close()
+            connection.close()
+            bot.send_message(message.chat.id, "Your name has been set to " + name + ".")
+            set_Budget(message)
+        else:
+            print("User already exists")
+            connection.close()
+            bot.send_message(message.chat.id, "You already have an account. Please use /updateName to update your name.")
+
+
     return True
 
 
 @bot.message_handler(commands=['updateName'])
 def update_set_Name(message):
-    text = "What do you want your name updated Young Padawan?"
+
+    connection = cnxpool.get_connection()
+    if connection.is_connected():
+        cursor = connection.cursor()
+        cursor.execute("SELECT * FROM expenses WHERE user_id = %s", (message.chat.id,))
+        records = cursor.fetchall()
+        if len(records) == 0:
+            bot.send_message(message.chat.id, "You do not have an account. Please use /setName to set your name.")
+        connection.commit()
+        cursor.close()
+        connection.close()
+
+    text = "What do you want your name updated to Young Padawan? Your current name is " + records[0][2] + "."
     sent_msg = bot.send_message(message.chat.id, text)
     bot.register_next_step_handler(sent_msg, update_name_handler)
 
 
 def update_name_handler(message):
     name = message.text
+    connection = cnxpool.get_connection()
+    if connection.is_connected():
+        cursor = connection.cursor()
+        cursor.execute("UPDATE expenses SET username = %s WHERE user_id = %s", (name, message.chat.id))
+        connection.commit()
+        cursor.close()
+        connection.close()
+        print("Name updated successfully")
     bot.send_message(message.chat.id, "Your name has updated to " + name + ".")
     return True
 
@@ -71,24 +168,89 @@ def set_Budget(message):
 
 def budget_handler(message):
     budget = message.text
+    connection = cnxpool.get_connection()
+    if connection.is_connected():
+        cursor = connection.cursor()
+        cursor.execute("UPDATE expenses SET monthlybudget = %s WHERE user_id = %s", (budget, message.chat.id))
+        connection.commit()
+        cursor.close()
+        connection.close()
+        print("Budget updated successfully")
     bot.send_message(message.chat.id, "Your monthly budget has been set to " + budget + " rupees.")
     return True
 
 
 @bot.message_handler(commands=['updateBudget'])
 def update_Budget(message):
-    text = "What do you want your monthly budget to be updated to Young Padawan?"
+    connection = cnxpool.get_connection()
+    if connection.is_connected():
+        cursor = connection.cursor()
+        cursor.execute("SELECT monthlybudget FROM expenses WHERE user_id = %s", (message.chat.id,))
+        # print(cursor.fetchone()[0])
+        # arr = cursor.fetchone()[0]
+        # convert arr object to string
+        # a = ''
+        # # for i in arr:
+        # #     a += str(i)
+        # a = str(arr[0])
+
+        # print(a)
+        # print(type(str(arr)))
+        # print(type(cursor.fetchone()[0]))
+        # print(str(cursor.fetchone()[0]))
+        records = cursor.fetchall()
+        print(records)
+        a=''
+        for row in records:
+            a = str(row[0])
+        print(a)
+        connection.commit()
+        cursor.close()
+        connection.close()
+    text = "What do you want your monthly budget to be updated to Young Padawan? " + "Your current monthly budget is " + a + " rupees."
+    # text = "What do you want your monthly budget to be updated to Young Padawan?"
     sent_msg = bot.send_message(message.chat.id, text)
     bot.register_next_step_handler(sent_msg, update_budget_handler)
 
 
 def update_budget_handler(message):
     budget = message.text
+    connection = cnxpool.get_connection()
+    if connection.is_connected():
+        cursor = connection.cursor()
+        cursor.execute("UPDATE expenses SET monthlybudget = %s WHERE user_id = %s", (budget, message.chat.id))
+        connection.commit()
+        cursor.close()
+        connection.close()
+        print("Budget updated successfully")
     bot.send_message(message.chat.id, "Your monthly budget has been updated to " + budget + " rupees.")
     return True
 
 
-#
+@bot.message_handler(commands=['deleteAccount'])
+def delete_Account(message):
+    text = "Are you sure you want to delete your account Young Padawan? (Y/N)"
+    sent_msg = bot.send_message(message.chat.id, text)
+    bot.register_next_step_handler(sent_msg, delete_account_handler)
+
+def delete_account_handler(message):
+    answer = message.text
+    if answer == "Y" or answer == "y":
+        bot.send_message(message.chat.id, "Your account has been successfully deleted. Please use /start to create a new account to converse with me.")
+        connection = cnxpool.get_connection()
+        if connection.is_connected():
+            cursor = connection.cursor()
+            cursor.execute("DELETE FROM expenses WHERE user_id = %s", (message.chat.id,))
+            connection.commit()
+            cursor.close()
+            connection.close()
+            print("Account deleted successfully")
+    elif answer == "N" or answer == "n":
+        bot.send_message(message.chat.id, "Your account has not been deleted.")
+    else:
+        bot.send_message(message.chat.id, "Please enter a valid answer.")
+    return True
+
 # @bot.message_handler(commands=['horoscope'])
 # def sign_handler(message):
 #     text = "What's your zodiac sign?\nChoose one: *Aries*, *Taurus*, *Gemini*, *Cancer,* *Leo*, *Virgo*, *Libra*, *Scorpio*, *Sagittarius*, *Capricorn*, *Aquarius*, and *Pisces*."
@@ -148,3 +310,17 @@ def echo_all(message):
 
 
 bot.infinity_polling()
+
+# beautifying tasks
+# start
+#  help
+#  error handling
+
+# core functions
+# delete expenses
+# update expenses
+
+# SQL integration with everything- done with the existing name and budget places
+
+# future actions
+# generate insights and reports
