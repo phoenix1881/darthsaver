@@ -14,14 +14,22 @@ def random_string(length):
 
 config = {
     "host": "aws.connect.psdb.cloud",
-    "user": "afbh24xgk2o21hmz6whi",
-    "password": "pscale_pw_xvbgAMySIpeaZyJARIaymDOkcvCrz555lCdnD631ybY",
+    "user": "45po9rjkuqnael9i7k4v",
+    "password": "pscale_pw_ne1u7ya541ROrfBrXoYs0cDW4IYkk4TEeua38bCzSZu",
     "database": "darthvader_bot",
 
 }
 
+
+'''
+HOST=aws.connect.psdb.cloud
+USERNAME=45po9rjkuqnael9i7k4v
+PASSWORD=pscale_pw_ne1u7ya541ROrfBrXoYs0cDW4IYkk4TEeua38bCzSZu
+DATABASE=darthvader_bot
+'''
+
 pool_name = "mypool"
-pool_size = 5
+pool_size = 10
 
 cnxpool = mysql.connector.pooling.MySQLConnectionPool(pool_name=pool_name, pool_size=pool_size, **config)
 
@@ -282,23 +290,79 @@ def echo_all(message):
     list = message.text.split()
     if list[0] == "f" or list[0] == "F":
         # bot.reply_to(list[1], 'Food and dining')
+        connection = cnxpool.get_connection()
+        if connection.is_connected():
+            cursor = connection.cursor()
+            cursor.execute("UPDATE expenses SET foodanddining = %s WHERE user_id = %s", (list[1], message.chat.id))
+
+            connection.commit()
+            cursor.close()
+            connection.close()
+            print("Record inserted Food and Dining")
         bot.send_message(message.chat.id, 'Food and Dining->' + list[1])
     elif list[0] == 't' or list[0] == 'T':
-        # bot.reply_to(list[1], 'Transportation')
+        connection = cnxpool.get_connection()
+        if connection.is_connected():
+            cursor = connection.cursor()
+            cursor.execute("UPDATE expenses SET transportation = %s WHERE user_id = %s", (list[1], message.chat.id))
+
+            connection.commit()
+            cursor.close()
+            connection.close()
+            print("Record inserted Transportation")
         bot.send_message(message.chat.id, 'Transportation->' + list[1])
     elif list[0] == 'h' or list[0] == 'H':
-        # bot.reply_to(list[1], 'Housing')
+        connection = cnxpool.get_connection()
+        if connection.is_connected():
+            cursor = connection.cursor()
+            cursor.execute("UPDATE expenses SET housing = %s WHERE user_id = %s", (list[1], message.chat.id))
+
+            connection.commit()
+            cursor.close()
+            connection.close()
+            print("Record inserted Housing")
         bot.send_message(message.chat.id, 'Housing ->' + list[1])
     elif list[0] == 'e' or list[0] == 'E':
-        # bot.reply_to(list[1], 'Entertainment')
+        connection = cnxpool.get_connection()
+        if connection.is_connected():
+            cursor = connection.cursor()
+            cursor.execute("UPDATE expenses SET entertainment = %s WHERE user_id = %s", (list[1], message.chat.id))
+            connection.commit()
+            cursor.close()
+            connection.close()
+            print("Record inserted Entertainment")
         bot.send_message(message.chat.id, 'Entertainment->' + list[1])
     elif list[0] == 'w' or list[0] == 'W':
-        # bot.reply_to(list[1], 'Wellness')
+        connection = cnxpool.get_connection()
+        if connection.is_connected():
+            cursor = connection.cursor()
+            # cursor.execute("UPDATE expenses (user_id, wellness) VALUES (%s, %s)", (message.chat.id, list[1]))
+            cursor.execute("UPDATE expenses SET wellness = %s WHERE user_id = %s", (list[1], message.chat.id))
+            connection.commit()
+            cursor.close()
+            connection.close()
+            print("Record inserted Wellness")
         bot.send_message(message.chat.id, 'Wellness->' + list[1])
     elif list[0] == 'p' or list[0] == 'P':
+        connection = cnxpool.get_connection()
+        if connection.is_connected():
+            cursor = connection.cursor()
+            cursor.execute("UPDATE expenses SET personalcare = %s WHERE user_id = %s", (list[1], message.chat.id))
+            connection.commit()
+            cursor.close()
+            connection.close()
+            print("Record inserted Personal Care")
         bot.send_message(message.chat.id, 'Personal care->' + list[1])
     elif list[0] == 'm' or list[0] == 'M':
-        # bot.reply_to(list[1], 'Miscellaneous')
+        connection = cnxpool.get_connection()
+        if connection.is_connected():
+            cursor = connection.cursor()
+            cursor.execute("UPDATE expenses SET misc = %s WHERE user_id = %s", (list[1], message.chat.id))
+
+            connection.commit()
+            cursor.close()
+            connection.close()
+            print("Record inserted Miscellaneous")
         bot.send_message(message.chat.id, 'Miscellaneous->' + list[1])
     else:
         bot.reply_to(message,
@@ -319,7 +383,7 @@ bot.infinity_polling()
 # core functions
 # delete expenses
 # update expenses
-
+# view options for every category as well as the name and everything
 # SQL integration with everything- done with the existing name and budget places
 
 # future actions
