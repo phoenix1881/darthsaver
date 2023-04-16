@@ -32,58 +32,62 @@ You may also set your monthly budget for each category using the command /setBud
 
 And should you require any assistance, do not hesitate to call upon me by typing /help. I am always watching.
 ''')
+    initial_set_Name(message)
 
 
-#
-# @bot.message_handler(commands=['setName'])
-# def set_name(message):
-#
-
-
-#
-# import os
-#
-# import telebot
-#
-# from sql import get_daily_horoscope
-#
-# BOT_TOKEN = os.environ.get('BOT_TOKEN')
-#
-# bot = telebot.TeleBot(BOT_TOKEN)
-#
-#
-# # print all messaages
-#
-# import logging
-#
-# # Set up logging
-# logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-#
-# # Log incoming messages
-# def handle_message(update, context):
-#     logging.info(f"Message from {update.message.chat_id}: {update.message.text}")
-#
-# # Log outgoing messages
-# def send_message(update, context, message):
-#     context.bot.send_message(chat_id=update.message.chat_id, text=message)
-#     logging.info(f"Message to {update.message.chat_id}: {message}")
-#
-#
 @bot.message_handler(commands=['setName'])
-def set_Name(message):
-    # bot.reply_to(message, "Howdy, how are you doing?")
-    # bot.send_message(message.chat.id, "Howdy, how are you doing?")
+def initial_set_Name(message):
     text = "What's your name Young Padawan?"
     sent_msg = bot.send_message(message.chat.id, text)
-    bot.register_next_step_handler(sent_msg, name_handler())
-    print(bot.register_next_step_handler(sent_msg, name_handler()))
+    bot.register_next_step_handler(sent_msg, initial_name_handler)
 
 
-
-def name_handler(message):
+def initial_name_handler(message):
     name = message.text
-    sent_msg = bot.send_message(message.chat.id, "Your name has been set to " + name)
-    bot.register_next_step_handler(sent_msg)
+    bot.send_message(message.chat.id, "Your name has been set to " + name + ".")
+    set_Budget(message)
+    return True
+
+
+@bot.message_handler(commands=['updateName'])
+def update_set_Name(message):
+    text = "What do you want your name updated Young Padawan?"
+    sent_msg = bot.send_message(message.chat.id, text)
+    bot.register_next_step_handler(sent_msg, update_name_handler)
+
+
+def update_name_handler(message):
+    name = message.text
+    bot.send_message(message.chat.id, "Your name has updated to " + name + ".")
+    return True
+
+
+@bot.message_handler(commands=['setBudget'])
+def set_Budget(message):
+    text = "What's your monthly budget Young Padawan?"
+    sent_msg = bot.send_message(message.chat.id, text)
+    bot.register_next_step_handler(sent_msg, budget_handler)
+
+
+def budget_handler(message):
+    budget = message.text
+    bot.send_message(message.chat.id, "Your monthly budget has been set to " + budget + " rupees.")
+    return True
+
+
+@bot.message_handler(commands=['updateBudget'])
+def update_Budget(message):
+    text = "What do you want your monthly budget to be updated to Young Padawan?"
+    sent_msg = bot.send_message(message.chat.id, text)
+    bot.register_next_step_handler(sent_msg, update_budget_handler)
+
+
+def update_budget_handler(message):
+    budget = message.text
+    bot.send_message(message.chat.id, "Your monthly budget has been updated to " + budget + " rupees.")
+    return True
+
+
 #
 # @bot.message_handler(commands=['horoscope'])
 # def sign_handler(message):
@@ -136,10 +140,10 @@ def echo_all(message):
         bot.send_message(message.chat.id, 'Miscellaneous->' + list[1])
     else:
         bot.reply_to(message,
-        '''
+                     '''
         Invalid command. Please try again, Young Padawan.\n
-        Do require any assistance, do not hesitate to call upon me by typing /help. I am always watching
-                     
+        \nDo require any assistance, do not hesitate to call upon me by typing /help. I am always watching
+
         ''')
 
 
