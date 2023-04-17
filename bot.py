@@ -8,31 +8,17 @@ import string
 from datetime import datetime
 from mysql.connector import Error, pooling
 
+
 def random_string(length):
     return ''.join(random.choice(string.ascii_letters) for _ in range(length))
 
 
-config = {
-    "host": "aws.connect.psdb.cloud",
-    "user": "45po9rjkuqnael9i7k4v",
-    "password": "pscale_pw_ne1u7ya541ROrfBrXoYs0cDW4IYkk4TEeua38bCzSZu",
-    "database": "darthvader_bot",
 
-}
-
-
-'''
-HOST=aws.connect.psdb.cloud
-USERNAME=45po9rjkuqnael9i7k4v
-PASSWORD=pscale_pw_ne1u7ya541ROrfBrXoYs0cDW4IYkk4TEeua38bCzSZu
-DATABASE=darthvader_bot
-'''
 
 pool_name = "mypool"
 pool_size = 10
 
 cnxpool = mysql.connector.pooling.MySQLConnectionPool(pool_name=pool_name, pool_size=pool_size, **config)
-
 
 BOT_TOKEN = os.environ.get('BOT_TOKEN')
 
@@ -103,8 +89,8 @@ def initial_name_handler(message):
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (user_id)
     # );'''
-    #         cursor.execute()
-    #         cursor.execute("INSERT INTO expenses () VALUES (%s)", (name,))
+            #         cursor.execute()
+            #         cursor.execute("INSERT INTO expenses () VALUES (%s)", (name,))
             insert_query = """
             INSERT INTO expenses (
                 user_id, date, username, monthlybudget, foodanddining, transportation, entertainment,
@@ -128,15 +114,14 @@ def initial_name_handler(message):
         else:
             print("User already exists")
             connection.close()
-            bot.send_message(message.chat.id, "You already have an account. Please use /updateName to update your name.")
-
+            bot.send_message(message.chat.id,
+                             "You already have an account. Please use /updateName to update your name.")
 
     return True
 
 
 @bot.message_handler(commands=['updateName'])
 def update_set_Name(message):
-
     connection = cnxpool.get_connection()
     if connection.is_connected():
         cursor = connection.cursor()
@@ -208,7 +193,7 @@ def update_Budget(message):
         # print(str(cursor.fetchone()[0]))
         records = cursor.fetchall()
         print(records)
-        a=''
+        a = ''
         for row in records:
             a = str(row[0])
         print(a)
@@ -235,16 +220,134 @@ def update_budget_handler(message):
     return True
 
 
+@bot.message_handler(commands=['viewBudget'])
+def view_Budget(message):
+    connection = cnxpool.get_connection()
+    if connection.is_connected():
+        cursor = connection.cursor()
+        cursor.execute("SELECT monthlybudget FROM expenses WHERE user_id = %s", (message.chat.id,))
+        records = cursor.fetchall()
+        a = ''
+        for row in records:
+            a = str(row[0])
+        print(a)
+        connection.commit()
+        cursor.close()
+        connection.close()
+    bot.send_message(message.chat.id, "Your current monthly budget is " + a + " rupees.")
+
+
+@bot.message_handler(commands=['viewName'])
+def view_Name(message):
+    connection = cnxpool.get_connection()
+    if connection.is_connected():
+        cursor = connection.cursor()
+        cursor.execute("SELECT username FROM expenses WHERE user_id = %s", (message.chat.id,))
+        records = cursor.fetchall()
+        a = ''
+        for row in records:
+            a = str(row[0])
+        print(a)
+        connection.commit()
+        cursor.close()
+        connection.close()
+
+
+@bot.message_handler(commands=['viewFoodExpense'])
+def view_FoodExpense(message):
+    connection = cnxpool.get_connection()
+    if connection.is_connected():
+        cursor = connection.cursor()
+        cursor.execute("SELECT foodanddining FROM expenses WHERE user_id = %s", (message.chat.id,))
+        records = cursor.fetchall()
+        a = ''
+        for row in records:
+            a = str(row[0])
+        print(a)
+        connection.commit()
+        cursor.close()
+        connection.close()
+    bot.send_message(message.chat.id, "Your current food expense is " + a + " rupees.")
+
+
+@bot.message_handler(commands=['viewTotalExpense'])
+def view_TotalExpense(message):
+    connection = cnxpool.get_connection()
+    if connection.is_connected():
+        cursor = connection.cursor()
+        cursor.execute("SELECT foodanddining FROM expenses WHERE user_id = %s", (message.chat.id,))
+        records = cursor.fetchall()
+        a = ''
+        for row in records:
+            a = str(row[0])
+        print(a)
+        cursor.close()
+        cursor1 = connection.cursor()
+        cursor1.execute("SELECT transportation FROM expenses WHERE user_id = %s", (message.chat.id,))
+        records1 = cursor1.fetchall()
+        b = ''
+        for row in records1:
+            b = str(row[0])
+        print(b)
+        cursor1.close()
+        cursor2 = connection.cursor()
+        cursor2.execute("SELECT entertainment FROM expenses WHERE user_id = %s", (message.chat.id,))
+        records2 = cursor2.fetchall()
+        c = ''
+        for row in records2:
+            c = str(row[0])
+        print(c)
+        cursor2.close()
+        cursor3 = connection.cursor()
+        cursor3.execute("SELECT housing FROM expenses WHERE user_id = %s", (message.chat.id,))
+        records3 = cursor3.fetchall()
+        d = ''
+        for row in records3:
+            d = str(row[0])
+        print(d)
+        cursor3.close()
+        cursor4 = connection.cursor()
+        cursor4.execute("SELECT wellness FROM expenses WHERE user_id = %s", (message.chat.id,))
+        records4 = cursor4.fetchall()
+        e = ''
+        for row in records4:
+            e = str(row[0])
+        print(e)
+        cursor4.close()
+        cursor5 = connection.cursor()
+        cursor5.execute("SELECT personalcare FROM expenses WHERE user_id = %s", (message.chat.id,))
+        records5 = cursor5.fetchall()
+        f = ''
+        for row in records5:
+            f = str(row[0])
+        print(f)
+        cursor5.close()
+        cursor6 = connection.cursor()
+        cursor6.execute("SELECT misc FROM expenses WHERE user_id = %s", (message.chat.id,))
+        records6 = cursor6.fetchall()
+        g = ''
+        for row in records6:
+            g = str(row[0])
+        print(g)
+        cursor6.close()
+        connection.commit()
+        connection.close()
+    bot.send_message(message.chat.id, "Your current total expense is " + str(
+        float(a) + float(b) + float(c) + float(d) + float(e) + float(f) + float(g)) + " rupees.")
+
+
 @bot.message_handler(commands=['deleteAccount'])
 def delete_Account(message):
     text = "Are you sure you want to delete your account Young Padawan? (Y/N)"
     sent_msg = bot.send_message(message.chat.id, text)
     bot.register_next_step_handler(sent_msg, delete_account_handler)
 
+
 def delete_account_handler(message):
     answer = message.text
     if answer == "Y" or answer == "y":
-        bot.send_message(message.chat.id, "Your account has been successfully deleted. Please use /start to create a new account to converse with me.")
+        bot.send_message(message.chat.id,
+                         "Your account has been successfully deleted. Please use /start to create a new account to converse with me.")
         connection = cnxpool.get_connection()
         if connection.is_connected():
             cursor = connection.cursor()
@@ -258,6 +361,7 @@ def delete_account_handler(message):
     else:
         bot.send_message(message.chat.id, "Please enter a valid answer.")
     return True
+
 
 # @bot.message_handler(commands=['horoscope'])
 # def sign_handler(message):
@@ -292,8 +396,17 @@ def echo_all(message):
         # bot.reply_to(list[1], 'Food and dining')
         connection = cnxpool.get_connection()
         if connection.is_connected():
+            cursor1 = connection.cursor()
+            cursor1.execute("SELECT foodanddining FROM expenses WHERE user_id = %s", (message.chat.id,))
+            records1 = cursor1.fetchall()
+            a = ''
+            for row in records1:
+                a = str(row[0])
+            print(a)
+            cursor1.close()
             cursor = connection.cursor()
-            cursor.execute("UPDATE expenses SET foodanddining = %s WHERE user_id = %s", (list[1], message.chat.id))
+            cursor.execute("UPDATE expenses SET foodanddining = %s WHERE user_id = %s",
+                           (float(a) + float(list[1]), message.chat.id))
 
             connection.commit()
             cursor.close()
@@ -303,9 +416,17 @@ def echo_all(message):
     elif list[0] == 't' or list[0] == 'T':
         connection = cnxpool.get_connection()
         if connection.is_connected():
+            cursor1 = connection.cursor()
+            cursor1.execute("SELECT transportation FROM expenses WHERE user_id = %s", (message.chat.id,))
+            records1 = cursor1.fetchall()
+            a = ''
+            for row in records1:
+                a = str(row[0])
+            print(a)
+            cursor1.close()
             cursor = connection.cursor()
-            cursor.execute("UPDATE expenses SET transportation = %s WHERE user_id = %s", (list[1], message.chat.id))
-
+            cursor.execute("UPDATE expenses SET transportation = %s WHERE user_id = %s",
+                           (float(a) + float(list[1]), message.chat.id))
             connection.commit()
             cursor.close()
             connection.close()
@@ -314,8 +435,17 @@ def echo_all(message):
     elif list[0] == 'h' or list[0] == 'H':
         connection = cnxpool.get_connection()
         if connection.is_connected():
+            cursor1 = connection.cursor()
+            cursor1.execute("SELECT housing FROM expenses WHERE user_id = %s", (message.chat.id,))
+            records1 = cursor1.fetchall()
+            a = ''
+            for row in records1:
+                a = str(row[0])
+            print(a)
+            cursor1.close()
             cursor = connection.cursor()
-            cursor.execute("UPDATE expenses SET housing = %s WHERE user_id = %s", (list[1], message.chat.id))
+            cursor.execute("UPDATE expenses SET housing = %s WHERE user_id = %s",
+                           (float(a) + float(list[1]), message.chat.id))
 
             connection.commit()
             cursor.close()
@@ -325,8 +455,17 @@ def echo_all(message):
     elif list[0] == 'e' or list[0] == 'E':
         connection = cnxpool.get_connection()
         if connection.is_connected():
+            cursor1 = connection.cursor()
+            cursor1.execute("SELECT entertainment FROM expenses WHERE user_id = %s", (message.chat.id,))
+            records1 = cursor1.fetchall()
+            a = ''
+            for row in records1:
+                a = str(row[0])
+            print(a)
+            cursor1.close()
             cursor = connection.cursor()
-            cursor.execute("UPDATE expenses SET entertainment = %s WHERE user_id = %s", (list[1], message.chat.id))
+            cursor.execute("UPDATE expenses SET entertainment = %s WHERE user_id = %s",
+                           (float(a) + float(list[1]), message.chat.id))
             connection.commit()
             cursor.close()
             connection.close()
@@ -335,9 +474,16 @@ def echo_all(message):
     elif list[0] == 'w' or list[0] == 'W':
         connection = cnxpool.get_connection()
         if connection.is_connected():
+            cursor1 = connection.cursor()
+            cursor1.execute("SELECT wellness FROM expenses WHERE user_id = %s", (message.chat.id,))
+            records1 = cursor1.fetchall()
+            a = ''
+            for row in records1:
+                a = str(row[0])
+            print(a)
+            cursor1.close()
             cursor = connection.cursor()
-            # cursor.execute("UPDATE expenses (user_id, wellness) VALUES (%s, %s)", (message.chat.id, list[1]))
-            cursor.execute("UPDATE expenses SET wellness = %s WHERE user_id = %s", (list[1], message.chat.id))
+            cursor.execute("UPDATE expenses SET wellness = %s WHERE user_id = %s", (float(a) + float(list[1]), message.chat.id))
             connection.commit()
             cursor.close()
             connection.close()
@@ -346,8 +492,16 @@ def echo_all(message):
     elif list[0] == 'p' or list[0] == 'P':
         connection = cnxpool.get_connection()
         if connection.is_connected():
+            cursor1 = connection.cursor()
+            cursor1.execute("SELECT personalcare FROM expenses WHERE user_id = %s", (message.chat.id,))
+            records1 = cursor1.fetchall()
+            a = ''
+            for row in records1:
+                a = str(row[0])
+            print(a)
+            cursor1.close()
             cursor = connection.cursor()
-            cursor.execute("UPDATE expenses SET personalcare = %s WHERE user_id = %s", (list[1], message.chat.id))
+            cursor.execute("UPDATE expenses SET personalcare = %s WHERE user_id = %s", (float(a)+float(list[1]), message.chat.id))
             connection.commit()
             cursor.close()
             connection.close()
@@ -356,9 +510,16 @@ def echo_all(message):
     elif list[0] == 'm' or list[0] == 'M':
         connection = cnxpool.get_connection()
         if connection.is_connected():
+            cursor1 = connection.cursor()
+            cursor1.execute("SELECT misc FROM expenses WHERE user_id = %s", (message.chat.id,))
+            records1 = cursor1.fetchall()
+            a = ''
+            for row in records1:
+                a = str(row[0])
+            print(a)
+            cursor1.close()
             cursor = connection.cursor()
-            cursor.execute("UPDATE expenses SET misc = %s WHERE user_id = %s", (list[1], message.chat.id))
-
+            cursor.execute("UPDATE expenses SET misc = %s WHERE user_id = %s", (float(a) +float(list[1]), message.chat.id))
             connection.commit()
             cursor.close()
             connection.close()
