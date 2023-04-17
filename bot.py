@@ -15,6 +15,7 @@ def random_string(length):
 
 
 
+
 pool_name = "mypool"
 pool_size = 10
 
@@ -53,7 +54,7 @@ And should you require any assistance, do not hesitate to call upon me by typing
     initial_set_Name(message)
 
 
-@bot.message_handler(commands=['setName'])
+@bot.message_handler(commands=['setname'])
 def initial_set_Name(message):
     text = "What's your name Young Padawan?"
     sent_msg = bot.send_message(message.chat.id, text)
@@ -102,7 +103,8 @@ def initial_name_handler(message):
             """
 
             cursor = connection.cursor()
-            cursor.execute(insert_query, (message.chat.id, current_date, username))
+            print(message.chat.id)
+            cursor.execute(insert_query, (message.chat.id, current_date, name))
             connection.commit()
             cursor.close()
             #
@@ -112,6 +114,7 @@ def initial_name_handler(message):
             bot.send_message(message.chat.id, "Your name has been set to " + name + ".")
             set_Budget(message)
         else:
+            print(message.chat.id)
             print("User already exists")
             connection.close()
             bot.send_message(message.chat.id,
@@ -120,7 +123,7 @@ def initial_name_handler(message):
     return True
 
 
-@bot.message_handler(commands=['updateName'])
+@bot.message_handler(commands=['updatename'])
 def update_set_Name(message):
     connection = cnxpool.get_connection()
     if connection.is_connected():
@@ -152,7 +155,7 @@ def update_name_handler(message):
     return True
 
 
-@bot.message_handler(commands=['setBudget'])
+@bot.message_handler(commands=['setbudget'])
 def set_Budget(message):
     text = "What's your monthly budget Young Padawan?"
     sent_msg = bot.send_message(message.chat.id, text)
@@ -173,7 +176,7 @@ def budget_handler(message):
     return True
 
 
-@bot.message_handler(commands=['updateBudget'])
+@bot.message_handler(commands=['updatebudget'])
 def update_Budget(message):
     connection = cnxpool.get_connection()
     if connection.is_connected():
@@ -220,7 +223,7 @@ def update_budget_handler(message):
     return True
 
 
-@bot.message_handler(commands=['viewBudget'])
+@bot.message_handler(commands=['viewbudget'])
 def view_Budget(message):
     connection = cnxpool.get_connection()
     if connection.is_connected():
@@ -237,23 +240,36 @@ def view_Budget(message):
     bot.send_message(message.chat.id, "Your current monthly budget is " + a + " rupees.")
 
 
-@bot.message_handler(commands=['viewName'])
+@bot.message_handler(commands=['viewname'])
 def view_Name(message):
+    # connection = cnxpool.get_connection()
+    # if connection.is_connected():
+    #     cursor = connection.cursor()
+    #     cursor.execute("SELECT username FROM expenses WHERE user_id = %s", (message.chat.id,))
+    #     records = cursor.fetchall()
+    #     a = ''
+    #     for row in records:
+    #         a = str(row[0])
+    #     print(a)
+    #     connection.commit()
+    #     cursor.close()
+    #     connection.close()
+    # bot.send_message(message.chat.id, "Your current name is " + a + ".")
     connection = cnxpool.get_connection()
     if connection.is_connected():
         cursor = connection.cursor()
-        cursor.execute("SELECT username FROM expenses WHERE user_id = %s", (message.chat.id,))
+        cursor.execute("SELECT * FROM expenses WHERE user_id = %s", (message.chat.id,))
         records = cursor.fetchall()
-        a = ''
-        for row in records:
-            a = str(row[0])
-        print(a)
+        if len(records) == 0:
+            bot.send_message(message.chat.id, "You do not have an account. Please use /setName to set your name.")
         connection.commit()
         cursor.close()
         connection.close()
 
+    # text = "Your current name is " + records[0][2] + "."
+    bot.send_message(message.chat.id, "Your current name is " + records[0][2] + ".")
 
-@bot.message_handler(commands=['viewFoodExpense'])
+@bot.message_handler(commands=['viewfoodexpense'])
 def view_FoodExpense(message):
     connection = cnxpool.get_connection()
     if connection.is_connected():
@@ -269,8 +285,104 @@ def view_FoodExpense(message):
         connection.close()
     bot.send_message(message.chat.id, "Your current food expense is " + a + " rupees.")
 
+@bot.message_handler(commands=['viewtransportationexpense'])
+def view_TransportationExpense(message):
+    connection = cnxpool.get_connection()
+    if connection.is_connected():
+        cursor = connection.cursor()
+        cursor.execute("SELECT transportation FROM expenses WHERE user_id = %s", (message.chat.id,))
+        records = cursor.fetchall()
+        a = ''
+        for row in records:
+            a = str(row[0])
+        print(a)
+        connection.commit()
+        cursor.close()
+        connection.close()
+    bot.send_message(message.chat.id, "Your current Transportation expense is " + a + " rupees.")
 
-@bot.message_handler(commands=['viewTotalExpense'])
+@bot.message_handler(commands=['viewhousingexpense'])
+def view_HousingExpense(message):
+    connection = cnxpool.get_connection()
+    if connection.is_connected():
+        cursor = connection.cursor()
+        cursor.execute("SELECT housing FROM expenses WHERE user_id = %s", (message.chat.id,))
+        records = cursor.fetchall()
+        a = ''
+        for row in records:
+            a = str(row[0])
+        print(a)
+        connection.commit()
+        cursor.close()
+        connection.close()
+    bot.send_message(message.chat.id, "Your current Housing expense is " + a + " rupees.")
+@bot.message_handler(commands=['viewentertainmentexpense'])
+def view_EntertainmentExpense(message):
+    connection = cnxpool.get_connection()
+    if connection.is_connected():
+        cursor = connection.cursor()
+        cursor.execute("SELECT entertainment FROM expenses WHERE user_id = %s", (message.chat.id,))
+        records = cursor.fetchall()
+        a = ''
+        for row in records:
+            a = str(row[0])
+        print(a)
+        connection.commit()
+        cursor.close()
+        connection.close()
+    bot.send_message(message.chat.id, "Your current Entertainment expense is " + a + " rupees.")
+
+@bot.message_handler(commands=['viewwellnessexpense'])
+def view_WellnessExpense(message):
+    connection = cnxpool.get_connection()
+    if connection.is_connected():
+        cursor = connection.cursor()
+        cursor.execute("SELECT wellness FROM expenses WHERE user_id = %s", (message.chat.id,))
+        records = cursor.fetchall()
+        a = ''
+        for row in records:
+            a = str(row[0])
+        print(a)
+        connection.commit()
+        cursor.close()
+        connection.close()
+    bot.send_message(message.chat.id, "Your current Wellness expense is " + a + " rupees.")
+
+@bot.message_handler(commands=['viewmiscexpense'])
+def view_MiscExpense(message):
+    connection = cnxpool.get_connection()
+    if connection.is_connected():
+        cursor = connection.cursor()
+        cursor.execute("SELECT misc FROM expenses WHERE user_id = %s", (message.chat.id,))
+        records = cursor.fetchall()
+        a = ''
+        for row in records:
+            a = str(row[0])
+        print(a)
+        connection.commit()
+        cursor.close()
+        connection.close()
+    bot.send_message(message.chat.id, "Your current Misc expense is " + a + " rupees.")
+
+@bot.message_handler(commands=['viewpersonalexpense'])
+def view_PersonalExpense(message):
+    connection = cnxpool.get_connection()
+    if connection.is_connected():
+        cursor = connection.cursor()
+        cursor.execute("SELECT personal FROM expenses WHERE user_id = %s", (message.chat.id,))
+        records = cursor.fetchall()
+        a = ''
+        for row in records:
+            a = str(row[0])
+        print(a)
+        connection.commit()
+        cursor.close()
+        connection.close()
+    bot.send_message(message.chat.id, "Your current Personal Care expense is " + a + " rupees.")
+
+
+
+@bot.message_handler(commands=['viewtotalexpense'])
 def view_TotalExpense(message):
     connection = cnxpool.get_connection()
     if connection.is_connected():
@@ -336,7 +448,7 @@ def view_TotalExpense(message):
         float(a) + float(b) + float(c) + float(d) + float(e) + float(f) + float(g)) + " rupees.")
 
 
-@bot.message_handler(commands=['deleteAccount'])
+@bot.message_handler(commands=['deleteaccount'])
 def delete_Account(message):
     text = "Are you sure you want to delete your account Young Padawan? (Y/N)"
     sent_msg = bot.send_message(message.chat.id, text)
@@ -389,6 +501,57 @@ def delete_account_handler(message):
 #     bot.send_message(message.chat.id, horoscope_message, parse_mode="Markdown")
 #
 # #
+
+@bot.message_handler(commands=['help'])
+def help(message):
+  bot.reply_to(message,
+                 '''
+You can control your information and the whole proces with these set of commands below:
+
+To Input Data i.e., You've got to enter data in this manner. 
+Categories:            Adding an Expense
+- Food and dining(f) -   eg. f 20 or F 20
+- Transportation(t)  -   eg. t 20 or T 20
+- Housing(h)         -   eg. h 20 or H 20
+- Entertainment(e)   -   eg. e 20 or E 20
+- Wellness(w)        -   eg. w 20 or W 20
+- Personal care(p)   -   eg. p 20 or P 20
+- Miscellaneous(m)   -   eg. m 20 or M 20
+
+Initializers:
+/setName - Set your Name 
+/setBudget - Set your monthly budget
+
+Viewers:
+/viewName - View your Name
+/viewBudget - View your Monthly Budget
+/viewFoodExpenses - View your Food Expenses
+/viewTransportExpenses - View your Transport Expenses
+/viewHousingExpenses - View your Housing Expenses
+/viewEntertainmentExpenses - View your Entertainment Expenses
+/viewWellnessExpenses - View your Wellness Expenses
+/viewPersonalCareExpenses - View your Personal Care Expenses
+/viewMiscExpenses - View your Miscellaneous Expenses
+/viewTotalExpenses - View your Total Expenses
+
+Edit:
+/updateName - Update your Name
+/updateBudget - Update your Monthly Budget 
+/updateExpenses - Update a particular expense 
+
+Delete:
+/deleteAccount - Delete your Account
+/deleteExpense - Delete a previous expense
+
+And should you require any assistance, do not hesitate to call upon me by typing /help. I am always watching.
+
+For further queries contact the creators:
+Pendyala Ritvik
+Tejdeep Chippa
+
+''')
+#
+
 @bot.message_handler(func=lambda msg: True)
 def echo_all(message):
     list = message.text.split()
