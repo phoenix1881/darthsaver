@@ -13,8 +13,20 @@ def random_string(length):
     return ''.join(random.choice(string.ascii_letters) for _ in range(length))
 
 
+config = {
+    "host": "aws.connect.psdb.cloud",
+    "user": "tj5j0ff71it9pho01rho",
+    "password": "pscale_pw_NniKHUsByYrkqRAj7pq5q2nFUX0rJqq3umBJRV4LlW1",
+    "database": "darthvader_bot",
 
+}
 
+'''
+HOST=aws.connect.psdb.cloud
+USERNAME=45po9rjkuqnael9i7k4v
+PASSWORD=pscale_pw_ne1u7ya541ROrfBrXoYs0cDW4IYkk4TEeua38bCzSZu
+DATABASE=darthvader_bot
+'''
 
 pool_name = "mypool"
 pool_size = 10
@@ -269,7 +281,8 @@ def view_Name(message):
     # text = "Your current name is " + records[0][2] + "."
     bot.send_message(message.chat.id, "Your current name is " + records[0][2] + ".")
 
-@bot.message_handler(commands=['viewfoodexpense'])
+
+@bot.message_handler(commands=['viewfoodexpenses'])
 def view_FoodExpense(message):
     connection = cnxpool.get_connection()
     if connection.is_connected():
@@ -285,7 +298,8 @@ def view_FoodExpense(message):
         connection.close()
     bot.send_message(message.chat.id, "Your current food expense is " + a + " rupees.")
 
-@bot.message_handler(commands=['viewtransportationexpense'])
+
+@bot.message_handler(commands=['viewtransportationexpenses'])
 def view_TransportationExpense(message):
     connection = cnxpool.get_connection()
     if connection.is_connected():
@@ -301,7 +315,8 @@ def view_TransportationExpense(message):
         connection.close()
     bot.send_message(message.chat.id, "Your current Transportation expense is " + a + " rupees.")
 
-@bot.message_handler(commands=['viewhousingexpense'])
+
+@bot.message_handler(commands=['viewhousingexpenses'])
 def view_HousingExpense(message):
     connection = cnxpool.get_connection()
     if connection.is_connected():
@@ -316,7 +331,9 @@ def view_HousingExpense(message):
         cursor.close()
         connection.close()
     bot.send_message(message.chat.id, "Your current Housing expense is " + a + " rupees.")
-@bot.message_handler(commands=['viewentertainmentexpense'])
+
+
+@bot.message_handler(commands=['viewentertainmentexpenses'])
 def view_EntertainmentExpense(message):
     connection = cnxpool.get_connection()
     if connection.is_connected():
@@ -332,7 +349,8 @@ def view_EntertainmentExpense(message):
         connection.close()
     bot.send_message(message.chat.id, "Your current Entertainment expense is " + a + " rupees.")
 
-@bot.message_handler(commands=['viewwellnessexpense'])
+
+@bot.message_handler(commands=['viewwellnessexpenses'])
 def view_WellnessExpense(message):
     connection = cnxpool.get_connection()
     if connection.is_connected():
@@ -348,7 +366,8 @@ def view_WellnessExpense(message):
         connection.close()
     bot.send_message(message.chat.id, "Your current Wellness expense is " + a + " rupees.")
 
-@bot.message_handler(commands=['viewmiscexpense'])
+
+@bot.message_handler(commands=['viewmiscexpenses'])
 def view_MiscExpense(message):
     connection = cnxpool.get_connection()
     if connection.is_connected():
@@ -364,7 +383,8 @@ def view_MiscExpense(message):
         connection.close()
     bot.send_message(message.chat.id, "Your current Misc expense is " + a + " rupees.")
 
-@bot.message_handler(commands=['viewpersonalexpense'])
+
+@bot.message_handler(commands=['viewpersonalexpenses'])
 def view_PersonalExpense(message):
     connection = cnxpool.get_connection()
     if connection.is_connected():
@@ -381,8 +401,7 @@ def view_PersonalExpense(message):
     bot.send_message(message.chat.id, "Your current Personal Care expense is " + a + " rupees.")
 
 
-
-@bot.message_handler(commands=['viewtotalexpense'])
+@bot.message_handler(commands=['viewtotalexpenses'])
 def view_TotalExpense(message):
     connection = cnxpool.get_connection()
     if connection.is_connected():
@@ -444,10 +463,61 @@ def view_TotalExpense(message):
         cursor6.close()
         connection.commit()
         connection.close()
-    bot.send_message(message.chat.id, "Your current total expense is " + str(
-        float(a) + float(b) + float(c) + float(d) + float(e) + float(f) + float(g)) + " rupees.")
+    message1 = ("Your current expenses:\n"
+                "Food and Dining:" + str(a) + " rupees.\n" +
+                "Transportation:" + str(b) + " rupees.\n" +
+                "Entertainment:" + str(c) + " rupees.\n" +
+                "Housing:" + str(d) + " rupees.\n" +
+                "Wellness:" + str(e) + " rupees.\n" +
+                "Personal Care:" + str(f) + " rupees.\n" +
+                "Miscellaneous:" + str(g) + " rupees.\n" +
+                "Total Expenses:" + str(float(a) + float(b) + float(c) + float(d) + float(e) + float(f) + float(g)) + "rupees.")
+    bot.send_message(message.chat.id, message1)
 
+    # bot.send_message(message.chat.id,
+    #                  '''
+    #                  Your current Food and Dining expense is + {a} + rupees.
+    #                  \nYour current Transportation expense is " + b + rupees.
+    #                  \nYour current Entertainment expense is " + c + rupees.
+    #                 \nYour current Housing expense is " + d + " rupees.
+    #                 \nYour current Wellness expense is " + e + " rupees.
+    #                 \nYour current Personal Care expense is " + f + " rupees.
+    #                 \nYour current Misc expense is " + g + " rupees.
+    #                 \nYour current total expense is " + str(float(a) + float(b) + float(c) + float(d) + float(e) + float(f) + float(g)) + " rupees.''')
+    #
+@bot.message_handler(commands=['viewaccountdetails'])
+def view_AccountDetails(message):
+    connection = cnxpool.get_connection()
+    if connection.is_connected():
+        cursor = connection.cursor()
+        cursor.execute("SELECT username FROM expenses WHERE user_id = %s", (message.chat.id,))
+        records = cursor.fetchall()
+        a = ''
+        for row in records:
+            a = str(row[0])
+        print(a)
+        cursor.close()
+        cursor1 = connection.cursor()
+        cursor1.execute("SELECT monthlybudget FROM expenses WHERE user_id = %s", (message.chat.id,))
+        records = cursor1.fetchall()
+        b = ''
+        for row in records:
+            b = str(row[0])
+        print(b)
+        cursor1.close()
+        connection.commit()
+        connection.close()
+    bot.send_message(message.chat.id, "Your current account details:\n"
+                                      "Name: " + a + "\n"
+                                                         "Monthly Budget: " + b + "\n")
+@bot.message_handler(commands=['deleteexpense'])
+def delete_Expense(message):
+    text = "Which expense would you like to delete? (Food and Dining/Transportation/Entertainment/Housing/Wellness/Personal Care/Misc)"
+    sent_msg = bot.send_message(message.chat.id, text)
+    bot.register_next_step_handler(sent_msg, delete_expense_handler)
 
+def delete_expense_handler(message):
+    pass
 @bot.message_handler(commands=['deleteaccount'])
 def delete_Account(message):
     text = "Are you sure you want to delete your account Young Padawan? (Y/N)"
@@ -504,7 +574,7 @@ def delete_account_handler(message):
 
 @bot.message_handler(commands=['help'])
 def help(message):
-  bot.reply_to(message,
+    bot.reply_to(message,
                  '''
 You can control your information and the whole proces with these set of commands below:
 
@@ -550,6 +620,8 @@ Pendyala Ritvik
 Tejdeep Chippa
 
 ''')
+
+
 #
 
 @bot.message_handler(func=lambda msg: True)
@@ -646,7 +718,8 @@ def echo_all(message):
             print(a)
             cursor1.close()
             cursor = connection.cursor()
-            cursor.execute("UPDATE expenses SET wellness = %s WHERE user_id = %s", (float(a) + float(list[1]), message.chat.id))
+            cursor.execute("UPDATE expenses SET wellness = %s WHERE user_id = %s",
+                           (float(a) + float(list[1]), message.chat.id))
             connection.commit()
             cursor.close()
             connection.close()
@@ -664,7 +737,8 @@ def echo_all(message):
             print(a)
             cursor1.close()
             cursor = connection.cursor()
-            cursor.execute("UPDATE expenses SET personalcare = %s WHERE user_id = %s", (float(a)+float(list[1]), message.chat.id))
+            cursor.execute("UPDATE expenses SET personalcare = %s WHERE user_id = %s",
+                           (float(a) + float(list[1]), message.chat.id))
             connection.commit()
             cursor.close()
             connection.close()
@@ -682,7 +756,8 @@ def echo_all(message):
             print(a)
             cursor1.close()
             cursor = connection.cursor()
-            cursor.execute("UPDATE expenses SET misc = %s WHERE user_id = %s", (float(a) +float(list[1]), message.chat.id))
+            cursor.execute("UPDATE expenses SET misc = %s WHERE user_id = %s",
+                           (float(a) + float(list[1]), message.chat.id))
             connection.commit()
             cursor.close()
             connection.close()
